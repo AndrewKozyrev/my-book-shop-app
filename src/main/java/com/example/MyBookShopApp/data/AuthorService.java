@@ -4,8 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthorService {
@@ -18,7 +19,7 @@ public class AuthorService {
     }
 
 
-    public List<Author> getAuthorsData() {
+    public Map<String, List<Author>> getAuthorsMap() {
         var authors = jdbcTemplate.query("SELECT * FROM authors", (rs, rowNum) -> {
             Author author = new Author();
             author.setId(rs.getInt("id"));
@@ -26,6 +27,6 @@ public class AuthorService {
             author.setLastName(rs.getString("last_name"));
             return author;
         });
-        return new ArrayList<>(authors);
+        return authors.stream().collect(Collectors.groupingBy(x -> x.getLastName().substring(0, 1)));
     }
 }
